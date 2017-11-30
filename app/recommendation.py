@@ -56,18 +56,45 @@ class Recommendation:
 
     # Display the recommendation for a user
     def make_recommendation(self, user):
-        movie = choice(list(self.movies.values())).title
+        #movie = choice(list(self.movies.values())).title
+        dico = self.compute_all_similarities(user)
+        best = max(dico.keys(),key=(lambda key:dico[key]))
+        #return "Vos recommandations : " + ", ".join([movie])
+        reponse = "Vos recommandations : "
+        print("ID BEST : ")
+        print(best.id)
+        for a in best.good_ratings:
+            reponse = reponse + a.title + " / "
 
-        return "Vos recommandations : " + ", ".join([movie])
+
+        return reponse[:-2]
 
     # Compute the similarity between two users
     @staticmethod
     def get_similarity(user_a, user_b):
-        return 1
+        score = 0
+        for a in user_a.good_ratings:
+            if a in user_b.good_ratings:
+                score = score + 2
+            elif a in user_b.bad_ratings:
+                score -= 2
+        for a in user_a.bad_ratings:
+            if a in user_b.bad_ratings:
+                score += 2
+            elif a in user_b.good_ratings:
+                score-=2
+        score = score/(Recommendation.get_user_norm(user_a)+Recommendation.get_user_norm(user_b))
+        return score
 
     # Compute the similarity between a user and all the users in the data set
     def compute_all_similarities(self, user):
-        return []
+        compareUser={}
+        for key,value in self.test_users.items():
+            compareUser[value]=self.get_similarity(user,value)
+            print("ID :")
+            print(key)
+            print(self.get_similarity(user,value))
+        return compareUser
 
     @staticmethod
     def get_best_movies_from_users(users):
@@ -79,7 +106,7 @@ class Recommendation:
 
     @staticmethod
     def get_user_norm(user):
-        return 1
+        return len(user.good_ratings) + len(user.neutral_ratings) + len(user.bad_ratings)
 
     # Return a vector with the normalised ratings of a user
     @staticmethod
