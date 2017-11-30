@@ -59,12 +59,24 @@ class Recommendation:
         #movie = choice(list(self.movies.values())).title
         dico = self.compute_all_similarities(user)
         best = max(dico.keys(),key=(lambda key:dico[key]))
-        #return "Vos recommandations : " + ", ".join([movie])
+        dicoTri = sorted(dico,key=dico.__getitem__)
+                #return "Vos recommandations : " + ", ".join([movie])
+        tab = dicoTri[len(dicoTri)-6:len(dicoTri)]
+        films = {}
+        for client in tab:
+            for film in client.good_ratings:
+                if not film in films:
+                    films[film] = 1
+                else:
+                    films[film]+=1
+
         reponse = "Vos recommandations : "
         print("ID BEST : ")
         print(best.id)
-        for a in best.good_ratings:
-            reponse = reponse + a.title + " / "
+        for key, value in films.items():
+            print(key.title)
+            if value > 1:
+                reponse = reponse + key.title + " / "
 
 
         return reponse[:-2]
